@@ -23,7 +23,6 @@ function getLocation() {
      setTimeout(() => {
       getData()
      }, 2000); 
-
 }
 
     
@@ -31,15 +30,39 @@ function clearCanvas(c) {
   c.height = 300;
 }
 
-function createInCanvas(lat, lon){
-  let canvas = document.getElementById("myCanvas")
-  let longitude = (lon* canvas.width) / 360;
-  let latitude = (lat*canvas.height) / 180;
+function createInCanvas(lat, lon, name){
+  let canvas = document.getElementById("myCanvas");
+  let longitude = (lon * canvas.width) / 360;
+  let latitude = (lat * canvas.height) / 180;
   let ctx = canvas.getContext("2d");
   ctx.fillStyle = "red";
   ctx.fillRect(longitude, latitude, 20, 20);
   ctx.font = "10px Arial";
-  ctx.fillText("hejsa", longitude, latitude); 
+  ctx.fillText(`hejsa ${name}`, longitude, latitude); 
+}
+
+function drawCanvas() {
+  let canvas = document.createElement('canvas');
+  let slider = document.createElement('input');
+  slider.setAttribute('type', 'range');
+  slider.setAttribute('id', 'range');
+  slider.setAttribute('min', '200');
+  slider.setAttribute('max', '750');
+  slider.setAttribute('step', '10')
+  slider.oninput = getRange;
+  canvas.width = '200';
+  canvas.height = '200';
+  canvas.style.backgroundColor = 'green';
+  canvas.id = "myCanvas"
+  document.getElementById('sliderBody').appendChild(slider);
+  document.getElementById('canvasBody').appendChild(canvas);
+}
+
+function getRange(e) {
+  let slider = e.target;
+  let map = document.getElementById('myCanvas');
+  map.width = slider.value;
+  map.height = slider.value;
 }
 
 function getData() {
@@ -53,38 +76,19 @@ function getData() {
       if (element.name == getCookie("signedIn")) {
         element.me = "this is you"
       }
-
-      if(document.contains(document.getElementById("myCanvas"))){
-        document.getElementById("myCanvas").remove()
-      }
-
-      let myCanvas = document.createElement("canvas");
-      myCanvas.id = "myCanvas"
-      myCanvas.height = 500;
-      myCanvas.width = 1000;
-      document.getElementById("canvasSize").oninput = function() {
-      clearCanvas(myCanvas)
-        for (let index = 0; index < data.length; index++) {
-          createInCanvas(data[index].latitude, data[index].longitude);       
-        }
-        createCanvas()
-      } 
-      document.getElementById("canvasBody").appendChild(myCanvas)
-      for (let index = 0; index < data.length; index++) {
-        createInCanvas(data[index].latitude, data[index].longitude);      
-      }      
-      createCanvas()
       positionJson.innerHTML += JSON.stringify(element) + "<br>"
     });
+    addToCanvas(data)
   }) 
 }
 
-function createCanvas(){
-  let ctx = myCanvas.getContext("2d");
-  ctx.globalCompositeOperation = 'destination-over';
-  ctx.fillStyle = "#92B901";
-  ctx.fillRect(0, 0, document.getElementById("canvasSize").value, document.getElementById("canvasSize").value);
+function addToCanvas(data) {
+ for (let index = 0; index < data.length; index++) {
+  const element = data[index];
+  createInCanvas(element.latitude, (element.longitude + (index * 100)), element.name);  
+ }
 }
+
 
 function getCookie(name) {
   let cookie = {};
