@@ -29,9 +29,10 @@ function getLocation() {
 function clearCanvas(c) {
   c.height = 300;
 }
+
 let personArr = []
 function createInCanvas(lat, lon, name, me){
-  let personobj = {"lat": lat, "lon": lon, "me": me}
+  let personobj = {"lat": lat, "lon": lon, "me": me, "name": name}
   personArr.push(personobj)
   let canvas = document.getElementById("myCanvas");
   let longitude = (lon * canvas.width) / 360;
@@ -49,6 +50,36 @@ function createInCanvas(lat, lon, name, me){
     ctx.fillText(`hejsa ${name}`, longitude, latitude);  
   }
 }
+
+function canvasList(distanceArr){
+  let getCanvas = document.getElementById("canvasList")
+  for (let index = 0; index < distanceArr.length; index++) {
+    const element = distanceArr[index];
+    let canvas = document.createElement("canvas")
+    canvas.width = '200';
+    canvas.height = '20';
+    canvas.style.backgroundColor = 'blue';
+    canvas.id = "myCanvas"
+  
+    let ctx = canvas.getContext("2d");
+    ctx.font = "10px Arial";
+    ctx.fillText(`hejsa ${element.name}`, (canvas.width / 2), (canvas.height / 2)); 
+  
+    canvas.addEventListener('click', function(event) {alert(element.name);})
+  
+    let breakrow = document.createElement("br")
+    getCanvas.appendChild(breakrow)
+    getCanvas.appendChild(canvas) 
+  }
+}
+
+function sortArray(distanceArray){
+  distanceArray.sort(function(a, b) {
+    return parseFloat(a.dis) - parseFloat(b.dis);
+  });
+  canvasList(distanceArray)
+}
+
 
 function drawCanvas() {
   let canvas = document.createElement('canvas');
@@ -75,11 +106,18 @@ function getRange(e) {
 }
 
 function distanceMap(){
-let map = document.getElementById("myCanvas");
-let distance = personArr[0].lon - personArr[1].lon
-let distancemap = map.width - distance
-document.getElementById("distanceMap").innerHTML = distancemap + " Distance on map";
-personArr = []
+  let distancearr = []
+  let map = document.getElementById("myCanvas");
+  document.getElementById("distanceMap").innerHTML = ""
+  for (let index = 0; index < personArr.length; index++) {
+    let distance = personArr[0].lon - personArr[index].lon
+    let distancemap = map.width - distance
+    let distanceobj = {"dis": distancemap, "name": personArr[index].name}
+    distancearr.push(distanceobj)
+    document.getElementById("distanceMap").innerHTML += distancemap + " Distance on map <br>"; 
+  }
+  sortArray(distancearr);
+  personArr = []
 }
 
 function getData() {
@@ -104,6 +142,11 @@ function getData() {
 }
 
 function addToCanvas(data) {
+  let getCanvas = document.getElementById("canvasList")
+  while (getCanvas.firstChild) {
+    getCanvas.removeChild(getCanvas.firstChild);
+  }
+
  for (let index = 0; index < data.length; index++) {
   const element = data[index];
   createInCanvas(element.latitude, (element.longitude + (index * 100)), element.name, element.me);  

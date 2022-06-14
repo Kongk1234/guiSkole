@@ -12,6 +12,7 @@ app.use(cookieParser());
 
 let username = "test"
 let username2 = "test2"
+let username3 = "test3"
 let passwordsalt = "b73a8e1f4f362a83ca23e1e5ce2cdfcd"
 let passwordhash = "3b2629050ebcb5b8a88239b3fd5b85bffad03cfddac5dce16335fb1a2950cd1eb4b2b3d7798e6fe6e2513ad71a1157f1addf0ee8a88eabba62c4ebac0913de4e"
 
@@ -62,7 +63,7 @@ app.get('/getData', function(req, res) {
 
 
 app.post('/login', (req, res) => {
-        if (req.body.username == username || req.body.username == username2 && verifyHash(req.body.password, passwordsalt, passwordhash)) {
+        if (req.body.username == username || req.body.username == username2 || req.body.username == username3 && verifyHash(req.body.password, passwordsalt, passwordhash)) {
             res.writeHead(200, ['Set-Cookie', `signedIn=${req.body.username}; Max-Age=1800; Path=/;`])  
             res.write(fs.readFileSync('./public/forside.html'))
             res.end()
