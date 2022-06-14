@@ -29,23 +29,32 @@ function getLocation() {
 function clearCanvas(c) {
   c.height = 300;
 }
-
-function createInCanvas(lat, lon, name){
+let personArr = []
+function createInCanvas(lat, lon, name, me){
+  let personobj = {"lat": lat, "lon": lon, "me": me}
+  personArr.push(personobj)
   let canvas = document.getElementById("myCanvas");
   let longitude = (lon * canvas.width) / 360;
   let latitude = (lat * canvas.height) / 180;
   let ctx = canvas.getContext("2d");
   ctx.fillStyle = "red";
-  ctx.fillRect(longitude, latitude, 20, 20);
-  ctx.font = "10px Arial";
-  ctx.fillText(`hejsa ${name}`, longitude, latitude); 
+  if (me == "this is you") {
+    ctx.fillRect((canvas.width / 2), (canvas.height / 2), 20, 20);
+    ctx.font = "10px Arial";
+    ctx.fillText(`hejsa ${name}`, (canvas.width / 2), (canvas.height / 2));  
+  }
+  else{
+    ctx.fillRect(longitude, latitude, 20, 20);
+    ctx.font = "10px Arial";
+    ctx.fillText(`hejsa ${name}`, longitude, latitude);  
+  }
 }
 
 function drawCanvas() {
   let canvas = document.createElement('canvas');
   let slider = document.createElement('input');
   slider.setAttribute('type', 'range');
-  slider.setAttribute('id', 'range');
+  slider.id = "range"
   slider.setAttribute('min', '200');
   slider.setAttribute('max', '750');
   slider.setAttribute('step', '10')
@@ -65,8 +74,18 @@ function getRange(e) {
   map.height = slider.value;
 }
 
+function distanceMap(){
+let map = document.getElementById("myCanvas");
+let distance = personArr[0].lon - personArr[1].lon
+let distancemap = map.width - distance
+document.getElementById("distanceMap").innerHTML = distancemap + " Distance on map";
+personArr = []
+}
+
 function getData() {
   let positionJson = document.getElementById("showJson")
+  let positionMeter = document.getElementById("showMeter")
+  let meterarr = []
   positionJson.innerHTML = ""
   fetch('/getData',
   )
@@ -76,8 +95,10 @@ function getData() {
       if (element.name == getCookie("signedIn")) {
         element.me = "this is you"
       }
+      meterarr.push(data)
       positionJson.innerHTML += JSON.stringify(element) + "<br>"
     });
+    positionMeter.innerHTML = measure(meterarr[0][0].latitude, meterarr[0][0].longitude, meterarr[0][1].latitude, meterarr[0][1].longitude) + " Meter"
     addToCanvas(data)
   }) 
 }
@@ -85,8 +106,10 @@ function getData() {
 function addToCanvas(data) {
  for (let index = 0; index < data.length; index++) {
   const element = data[index];
-  createInCanvas(element.latitude, (element.longitude + (index * 100)), element.name);  
+  createInCanvas(element.latitude, (element.longitude + (index * 100)), element.name, element.me);  
  }
+ distanceMap()
+ personArr = []
 }
 
 
@@ -116,4 +139,17 @@ function sendData(username,longitude,latitude){
     .catch((error) => {
     console.error('Error:', error);
     });
+}
+
+
+function measure(lat1, lon1, lat2, lon2){  // generally used geo measurement function
+  let R = 6378.137; // Radius of earth in KM
+  let dLat = lat2 * Math.PI / 180 - lat1 * Math.PI / 180;
+  let dLon = lon2 * Math.PI / 180 - lon1 * Math.PI / 180;
+  let a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+  Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+  Math.sin(dLon/2) * Math.sin(dLon/2);
+  let c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  let d = R * c;
+  return d * 1000; // meters
 }

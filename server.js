@@ -45,7 +45,6 @@ app.get('/login', function(req, res) {
 });
 
 app.post('/postData', (req, res) => {
-    console.log(req.body);
     let data = new users(req.body.name, req.body.longitude, req.body.latitude, "")
     for (let index = 0; index < usersArray.length; index++) {
         const element = usersArray[index];
@@ -54,7 +53,6 @@ app.post('/postData', (req, res) => {
         }
     }
     usersArray.push(data)
-    console.log(usersArray);
 });
 
 app.get('/getData', function(req, res) {
