@@ -74,9 +74,7 @@ function canvasList(distanceArr){
 }
 
 function sortArray(distanceArray){
-  distanceArray.sort(function(a, b) {
-    return parseFloat(a.dis) - parseFloat(b.dis);
-  });
+  distanceArray.sort((a, b) => parseFloat(b.dis) - parseFloat(a.dis))
   canvasList(distanceArray)
 }
 
