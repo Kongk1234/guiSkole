@@ -1,3 +1,4 @@
+
 setInterval(() => {
   getLocation()
 }, 10000);
@@ -47,35 +48,45 @@ function createInCanvas(lat, lon, name, me){
   else{
     ctx.fillRect(longitude, latitude, 20, 20);
     ctx.font = "10px Arial";
-    ctx.fillText(`hejsa ${name}`, longitude, latitude);  
+    ctx.fillText(`hejsa ${name}`, longitude, latitude);   
   }
 }
 
-function canvasList(distanceArr){
-  let getCanvas = document.getElementById("canvasList")
-  for (let index = 0; index < distanceArr.length; index++) {
-    const element = distanceArr[index];
-    let canvas = document.createElement("canvas")
-    canvas.width = '200';
-    canvas.height = '20';
-    canvas.style.backgroundColor = 'blue';
-    canvas.id = "myCanvas"
-  
-    let ctx = canvas.getContext("2d");
-    ctx.font = "10px Arial";
-    ctx.fillText(`hejsa ${element.name}`, (canvas.width / 2), (canvas.height / 2)); 
-  
-    canvas.addEventListener('click', function(event) {alert(element.name);})
-  
-    let breakrow = document.createElement("br")
-    getCanvas.appendChild(breakrow)
-    getCanvas.appendChild(canvas) 
-  }
+function createElements(name, left, top, width, height) {
+    let canvas = document.getElementById("myCanvas")
+    let context = canvas.getContext("2d");
+    context.fillStyle = "black";
+    context.fillRect(left, top, width, height);
+    context.fillStyle = "white";
+    context.font = "10px Arial";
+    context.fillText(`hejsa ${name}`, left, top + 10);   
 }
+
+
+
+let elements = []
+
+function clickCanvas(event, elemLeft, elemTop){
+  let x = event.pageX - elemLeft
+  let y = event.pageY - elemTop;
+  let canvas = document.getElementById("myCanvas")
+  ctx = canvas.getContext('2d')
+  elements.forEach(function(element) {
+    console.log(y > element.top + " 1");
+    console.log(y < element.top + element.height + " 2");
+    console.log(y);
+    console.log(element.top);
+    console.log(element.height + element.top);
+    if (y > element.top && y < element.top + element.height 
+      && x > element.left && x < element.left + element.width)  {      // check which path
+      alert(element.text);
+    }
+  });
+}
+
 
 function sortArray(distanceArray){
   distanceArray.sort((a, b) => parseFloat(b.dis) - parseFloat(a.dis))
-  canvasList(distanceArray)
 }
 
 
@@ -92,6 +103,11 @@ function drawCanvas() {
   canvas.height = '200';
   canvas.style.backgroundColor = 'green';
   canvas.id = "myCanvas"
+  let elemLeft = canvas.offsetLeft + canvas.clientLeft
+  let elemTop = canvas.offsetTop + canvas.clientTop
+  context = canvas.getContext('2d')
+  canvas.addEventListener('click', function(event) {clickCanvas(event, elemLeft, elemTop)}, false);
+
   document.getElementById('sliderBody').appendChild(slider);
   document.getElementById('canvasBody').appendChild(canvas);
 }
@@ -144,11 +160,30 @@ function addToCanvas(data) {
   while (getCanvas.firstChild) {
     getCanvas.removeChild(getCanvas.firstChild);
   }
+  elements = []
+  let top = 20
+    for (let index = 0; index < data.length; index++) {
+      const element = data[index];
+      elements.push({
+        text: element.name,
+        width: 150,
+        height: 20,
+        top: top,
+        left: 15
+      });
+      top += 25
+    } 
 
  for (let index = 0; index < data.length; index++) {
   const element = data[index];
   createInCanvas(element.latitude, (element.longitude + (index * 100)), element.name, element.me);  
  }
+
+ for (let index = 0; index < elements.length; index++) {
+  const element = elements[index];
+  createElements(element.text, element.left, element.top, element.width, element.height)  
+ }
+
  distanceMap()
  personArr = []
 }
