@@ -72,11 +72,6 @@ function clickCanvas(event, elemLeft, elemTop){
   let canvas = document.getElementById("myCanvas")
   ctx = canvas.getContext('2d')
   elements.forEach(function(element) {
-    console.log(y > element.top + " 1");
-    console.log(y < element.top + element.height + " 2");
-    console.log(y);
-    console.log(element.top);
-    console.log(element.height + element.top);
     if (y > element.top && y < element.top + element.height 
       && x > element.left && x < element.left + element.width)  {      // check which path
       alert(element.text);
